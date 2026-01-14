@@ -6,26 +6,34 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics.pairwise import cosine_similarity
 
 # -----------------------------
-# Page configuration
+# Page config
 # -----------------------------
-st.set_page_config(
-    page_title="AI Resume Screening",
-    layout="centered"
-)
-
+st.set_page_config(page_title="AI Resume Screening", layout="centered")
 st.title("🧠 AI-Based Resume Screening System")
 st.write("Paste resume text to predict job role and match percentage.")
 
 # -----------------------------
-# Load dataset (CLEAN VERSION)
+# Load dataset safely
 # -----------------------------
 base_dir = os.path.dirname(__file__)
 csv_path = os.path.join(base_dir, "dataset", "resumes.csv")
 
 data = pd.read_csv(csv_path)
 
-X = data["Resume"]
-y = data["Category"]
+# 🔐 NORMALIZE COLUMN NAMES
+data.columns = [col.strip().lower() for col in data.columns]
+
+# 🔎 HANDLE ALL POSSIBLE CASES
+if "resume" in data.columns and "category" in data.columns:
+    X = data["resume"]
+    y = data["category"]
+else:
+    # fallback if headers are missing or broken
+    data = pd.read_csv(csv_path, header=None)
+    data = data.iloc[:, :2]
+    data.columns = ["resume", "category"]
+    X = data["resume"]
+    y = data["category"]
 
 # -----------------------------
 # Vectorization & Model
@@ -37,7 +45,7 @@ model = LogisticRegression(max_iter=1000)
 model.fit(X_vectorized, y)
 
 # -----------------------------
-# User Input
+# User input
 # -----------------------------
 user_resume = st.text_area(
     "📄 Resume Text",
