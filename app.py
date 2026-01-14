@@ -13,10 +13,14 @@ st.write("Paste resume text to predict job role and match percentage.")
 # Load dataset safely
 base_dir = os.path.dirname(__file__)
 csv_path = os.path.join(base_dir, "dataset", "resumes.csv")
-data = pd.read_csv(csv_path)
+data = pd.read_csv(csv_path, header=None)
+
+# If header is missing, assign column names manually
+data.columns = ["Resume", "Category"]
 
 X = data["Resume"]
 y = data["Category"]
+
 
 # Train model
 vectorizer = TfidfVectorizer()
@@ -38,3 +42,4 @@ if st.button("🔍 Predict"):
 
         st.success(f"✅ Predicted Job Role: {predicted_role}")
         st.info(f"📊 Job Match Percentage: {match:.2f}%")
+
