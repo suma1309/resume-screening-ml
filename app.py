@@ -13,14 +13,13 @@ st.write("Paste resume text to predict job role and match percentage.")
 # Load dataset safely
 base_dir = os.path.dirname(__file__)
 csv_path = os.path.join(base_dir, "dataset", "resumes.csv")
-data = pd.read_csv(csv_path, header=None)
-
-# Keep only first two columns (ignore extra ones)
-data = data.iloc[:, :2]
-
-# Assign correct column names
-data.columns = ["Resume", "Category"]
-
+data = pd.read_csv(
+    csv_path,
+    header=None,
+    usecols=[0, 1],        # force only first two columns
+    names=["Resume", "Category"],
+    engine="python"       # handles messy CSV safely
+)
 
 X = data["Resume"]
 y = data["Category"]
@@ -46,5 +45,6 @@ if st.button("🔍 Predict"):
 
         st.success(f"✅ Predicted Job Role: {predicted_role}")
         st.info(f"📊 Job Match Percentage: {match:.2f}%")
+
 
 
