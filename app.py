@@ -15,8 +15,12 @@ base_dir = os.path.dirname(__file__)
 csv_path = os.path.join(base_dir, "dataset", "resumes.csv")
 data = pd.read_csv(csv_path, header=None)
 
-# If header is missing, assign column names manually
+# Keep only first two columns (ignore extra ones)
+data = data.iloc[:, :2]
+
+# Assign correct column names
 data.columns = ["Resume", "Category"]
+
 
 X = data["Resume"]
 y = data["Category"]
@@ -42,4 +46,5 @@ if st.button("🔍 Predict"):
 
         st.success(f"✅ Predicted Job Role: {predicted_role}")
         st.info(f"📊 Job Match Percentage: {match:.2f}%")
+
 
