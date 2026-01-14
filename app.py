@@ -1,4 +1,5 @@
 import os
+import csv
 import pandas as pd
 import streamlit as st
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -13,27 +14,29 @@ st.title("🧠 AI-Based Resume Screening System")
 st.write("Paste resume text to predict job role and match percentage.")
 
 # -----------------------------
-# Load dataset safely
+# Load dataset SAFELY (no pandas parsing issues)
 # -----------------------------
 base_dir = os.path.dirname(__file__)
 csv_path = os.path.join(base_dir, "dataset", "resumes.csv")
 
-data = pd.read_csv(csv_path)
+resumes = []
+categories = []
 
-# 🔐 NORMALIZE COLUMN NAMES
-data.columns = [col.strip().lower() for col in data.columns]
+with open(csv_path, encoding="utf-8", errors="ignore") as file:
+    reader = csv.reader(file)
+    for row in reader:
+        if len(row) >= 2:
+            resumes.append(row[0].strip())
+            categories.append(row[1].strip())
 
-# 🔎 HANDLE ALL POSSIBLE CASES
-if "resume" in data.columns and "category" in data.columns:
-    X = data["resume"]
-    y = data["category"]
-else:
-    # fallback if headers are missing or broken
-    data = pd.read_csv(csv_path, header=None)
-    data = data.iloc[:, :2]
-    data.columns = ["resume", "category"]
-    X = data["resume"]
-    y = data["category"]
+# Create clean DataFrame
+data = pd.DataFrame({
+    "resume": resumes,
+    "category": categories
+})
+
+X = data["resume"]
+y = data["category"]
 
 # -----------------------------
 # Vectorization & Model
